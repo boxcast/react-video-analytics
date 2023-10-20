@@ -1,5 +1,5 @@
 {
-  "name": "react-video-analytics",
+  "name": "@oos-studio/react-video-analytics",
   "version": "1.0.0",
   "description": "Easily manage and post metrics from video player events",
   "repository": "https://github.com/oos-studio/react-video-analytics",
