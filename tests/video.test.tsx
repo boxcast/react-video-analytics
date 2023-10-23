@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
-import { useAnalytics } from '../hooks'
+import { useAnalytics } from '../src/hooks'
 import { render, screen } from '@testing-library/react'
 import { act } from 'react-dom/test-utils'
-import { AnalyticsProvider } from '../analytics'
-import { VideoPlayerConfig, VimePlayerConfig } from '../players'
+import { AnalyticsProvider } from '../src/analytics'
+import { VideoPlayerConfig, VimePlayerConfig } from '../src/players'
 
 const defaultSrc = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
 

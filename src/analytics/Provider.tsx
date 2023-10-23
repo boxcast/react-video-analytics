@@ -1,5 +1,5 @@
 import React, { createContext } from 'react'
-import { VideoPlayerConfig } from '../players'
+import { VideoPlayerConfig } from '../configs'
 
 export type PlayerConfig<Player = unknown> = {
   getVideoElement: <P extends Player>(player: P) => Promise<HTMLVideoElement | null>

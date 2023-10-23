@@ -18,14 +18,16 @@
     - [API](#api)
         - [AnalyticsProvider](#analyticsprovider)
             - [Props](#props)
-            - [PlayerConfig](#playerconfigplayer--any)
+            - [Types](#types)
+                - [PlayerConfig<Player = unknown>](#playerconfigplayer--unknown)
         - [useAnalytics](#useanalytics)
             - [Options](#options)
-            - [ReportMetrics](#reportmetrics)
-            - [ReportAction](#reportaction)
-            - [BrowserState](#browserstate)
-            - [ReportHeaders](#reportheaders)
-            - [ReportError](#reporterror)
+            - [Types](#types-1)
+                - [ReportMetrics](#reportmetrics)
+                - [ReportAction](#reportaction)
+                - [BrowserState](#browserstate)
+                - [ReportHeaders](#reportheaders)
+                - [ReportError](#reporterror)
     - [Authors](#authors)
     - [License](#license)
 
@@ -226,12 +228,12 @@ The `useAnalytics` hook requires a reference to your video player component. It 
 
 ##### `ReportError`
 
-| Prop              | Type                      | Description                                                           |
-|-------------------|---------------------------|-----------------------------------------------------------------------|
-| message           | `string`                  | A message describing the error that occurred.                         |
-| code              | `string`                  | A code associated to the error that occurred.                         |
-| data              | `object`                  | A object containing additional details about the error that occurred. |
-| source (optional) | `unknown &#124; undefined` | A potential reference to the error's source.                          |
+| Prop              | Type              | Description                                                           |
+|-------------------|-------------------|-----------------------------------------------------------------------|
+| message           | `string`          | A message describing the error that occurred.                         |
+| code              | `string`          | A code associated to the error that occurred.                         |
+| data              | `object`          | A object containing additional details about the error that occurred. |
+| source (optional) | `unknown` | A potential reference to the error's source.                          |
 
 ## Authors
 
