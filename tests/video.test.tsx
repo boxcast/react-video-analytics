@@ -1,9 +1,14 @@
+//
+// Copyright (c) oos, Inc. and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for more details.
+//
+
 import React, { useEffect } from 'react'
 import { useAnalytics } from '../src/hooks'
 import { render, screen } from '@testing-library/react'
 import { act } from 'react-dom/test-utils'
 import { AnalyticsProvider } from '../src/analytics'
-import { VideoPlayerConfig, VimePlayerConfig } from '../src/players'
+import { VideoPlayerConfig, VimePlayerConfig } from '../src/configs'
 
 const defaultSrc = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
 
