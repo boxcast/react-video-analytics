@@ -46,7 +46,7 @@ $ yarn add react-video-analytics
 ## Usage
 
 ### Setup
-Begin by wrapping your app with the `AnalyticsProvider`.
+Begin by wrapping your app with the [AnalyticsProvider](#analyticsprovider).
 
 ```tsx
 import { AnalyticsProvider } from 'react-video-analytics'
@@ -61,9 +61,27 @@ return (
 ````
 
 ### Attach
-Using the `useAnalytics` hook, attach a reference to your video player.
+Using the [useAnalytics](#useanalytics) hook, attach a reference to your video player.
 
 ```tsx
+import { useAnalytics } from 'react-video-analytics'
+
+const MyComponent = () => {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  
+  useAnalytics(videoRef)
+  
+  return (
+    <video ref={videoRef} />
+  )
+}
+```
+
+### Send
+Implement the `send` [option](#options) to send metrics to your analytics service. The `send` function will be called every time the video player emits a [ReportAction](#reportaction) which you can reference via `metrics.action`. The following example uses [axios](https://axios-http.com/) to post the metrics payload to an API endpoint:
+
+```tsx
+import axios from 'axios'
 import { useAnalytics } from 'react-video-analytics'
 
 const MyComponent = () => {
@@ -72,6 +90,7 @@ const MyComponent = () => {
   useAnalytics(videoRef, {
     send: (metrics) => {
       // Send metrics to your analytics service
+      axios.post('https://my-api.com/video-analytics', metrics)
     }
   })
   
@@ -81,70 +100,61 @@ const MyComponent = () => {
 }
 ```
 
-### Send
-Implement the `send` option to send metrics to your analytics service. The `send` function will be called every time the video player emits one of the following events. 
-
-***Note:*** The `metrics` object contains an `action` property of type `ReportAction` corresponding to the event that was emitted.
-
-| Event        | Description                                                                                                | ReportAction |
-|--------------|------------------------------------------------------------------------------------------------------------|--------------|
-| `play`       | Whenever the video player is played                                                                        | `play`       |
-| `pause`      | Whenever the video player is paused                                                                        | `pause`      |
-| `seeking`    | Whenever the video player begins seeking                                                                   | `seek`       |
-| `resize`     | Whenever the video player quality setting is changed                                                       | `quality`    |
-| `complete`   | Whenever the video player finishes playing the video                                                       | `complete`   |
-| `timeupdate` | Whenever the video player position changes. By default this will call the `send` function every 30 seconds | `time`       |
-| `stalled`     | Whenever the video player begins buffering.                                                                | `buffer`      |
-
 ## API
 
 ### AnalyticsProvider
-Use the `AnalyticsProvider` to create custom video player configurations. By default, `react-video-analytics` supports a standard HTML video player and the [Vime](https://vimejs.com/) video player. 
+Use the `AnalyticsProvider` to create custom video player configurations. By default, `react-video-analytics` supports a standard HTML video player. It also ships with an optional `VimePlayerConfig` that you can use instead if your project uses a [Vime](https://vimejs.com/) video player. 
 
 #### Props
-| Prop          | Type                          | Default value                                                                            | 
-|---------------|-------------------------------|------------------------------------------------------------------------------------------|
-| players       | Dictionary of `PlayerConfig`s | `video`:`PlayerConfig<HTMLVideoElement>`<br/>`vimeo`:`PlayerConfig<HTMLVmPlayerElement>` |
-| defaultPlayer | key of `players`                | `video`                                                                                   |
+| Prop                           | Type                          | Default value                       | Description                                                                                  | 
+|--------------------------------|-------------------------------|-------------------------------------|----------------------------------------------------------------------------------------------|
+| defaultPlayerConfig (optional) | [PlayerConfig](#playerconfig) | `VideoPlayerConfig`                 | Provides the default player configuration to use.                                            |
+| defaultTimeInterval (optional) | `number`                      | `30000`                              | The default interval, in milliseconds, to call `send` when the `timeupdate` event is emitted |
+| viewerIdKey (optional)         | `string`                      | `'react-video-analytics-viewer-id'` | The storage key name to use for storing the viewer's unique identifier.                      |
 
-#### PlayerConfig<Player = any>
-| Prop            | Type                                                                    | Description                                                                          |
-|-----------------|-------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| getVideoElement | `(player: Player) => Promise<HTMLVideoElement> &#124; HTMLVideoElement` | Defines how to retreive the html video element from a generic video player component |
+#### Types
+
+##### `PlayerConfig<Player = unknown>`
+
+| Prop            | Type                                                         | Description                                                                          |
+|-----------------|--------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| getVideoElement | `<P extends Player>(player: P) => Promise<HTMLVideoElement>` | Defines how to retreive the html video element from a generic video player component |
 
 
-Example:
+#### Examples
+Using a custom player component:
 
 ```tsx
+import { PlayerConfig } from 'react-video-analytics'
+
 ...
 
 return (
   <AnayticsProvider
-    players={{
-      video: {
-        getVideoElement: (player: HTMLVideoElement) => {
-          return player
-        }
-      } as PlayerConfig<HTMLVideoElement>,
-      vime: {
-        getVideoElement: async (player: HTMLVmPlayerElement) => {
-          const adapter = await player.getAdapter()
-          const internalPlayer = await adapter?.getInternalPlayer()
-          if (internalPlayer) {
-            return internalPlayer._media
-          }
-        }
-      } as PlayerConfig<HTMLVmPlayerElement>,
-      custom: {
-        getVideoElement: (player: SomeCustomPlayer) => {
-          // Write logic to return the html video element from your custom player
-        }
-      } as PlayerConfig<SomeCustomPlayer>
-    }}
-    // Set the default player to vime and pass a reference to the vime player when using the `useAnalytics` hook
-    defaultPlayer={'vime'}
+    defaultPlayerConfig={{ 
+      getVideoElement: (player: SomeCustomPlayer) => {
+        // Write logic to return the html video element from your custom player
+      } 
+    } as PlayerConfig<SomeCustomPlayer> }
   >
-    <App />
+    <App/>
+  </AnayticsProvider>
+)
+
+...
+```
+Using the [Vime](https://vimejs.com/) video player component:
+
+```tsx
+import { VimePlayerConfig } from 'react-video-analytics'
+
+...
+
+return (
+  <AnayticsProvider
+    defaultPlayerConfig={VimePlayerConfig}
+  >
+    <App/>
   </AnayticsProvider>
 )
 
@@ -152,37 +162,40 @@ return (
 ```
 
 ### useAnalytics
+The `useAnalytics` hook requires a reference to your video player component. It also accepts an optional `options` object that allows you to customize how metrics are handled and sent to your analytics service.
 
 #### Options
-| Prop        | Type                                                          | Default | Description                                                                |
-|-------------|---------------------------------------------------------------|---------|----------------------------------------------------------------------------|
-| send        | `(metrics: ReportMetrics) => void &#124; undefined`           | `-`     | Describes how to post metrics to your analytics service                    |
-| maxAttempts | `number &#124; undefined`                                     | `5`     | Maximum number of times to attempt to send metrics before calling `onFail` |
-| player      | key of `players` passed to `AnalyticsProvider` or `undefined` | `video` | The player configuration to use corresponding to the player component reference passed to `useAnalytics` |
-| interval    | `number &#124; undefined`                                     | `30000` | The interval in milliseconds to call `send` when the `timeupdate` event is emitted |
-| onQueue     | `(metrics: ReportMetrics) => void &#124; undefined`           | `-`     | Called when metrics are queued to be sent                                  |
-| onComplete  | `(metrics: ReportMetrics) => void &#124; undefined`           | `-`     | Called when metrics are successfully sent                                   |
-| onError     | `(metrics: ReportMetrics) => void &#124; undefined`           | `-`     | Called when metrics fail to be sent                                         |
-| onRequeue   | `(metrics: ReportMetrics) => void &#124; undefined`           | `-`     | Called when metrics are requeued to be sent                                 |
-| onFail      | `(metrics: ReportMetrics) => void &#124; undefined`           | `-`     | Called when metrics fail to be sent after `maxAttempts`                    |
+| Prop                    | Type                                               | Default             | Description                                                                                              |
+|-------------------------|----------------------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------|
+| send (optional)         | (metrics: [ReportMetrics](#reportmetrics)) => void               | `-`                 | Describes how to post metrics to your analytics service                                                  |
+| maxAttempts (optional)  | `number`                                           | `5`                 | Maximum number of times to attempt to send metrics before calling `onFail`                               |
+| playerConfig (optional) | `PlayerConfig`                                     | `VideoPlayerConfig` | The player configuration to use corresponding to the player component reference passed to `useAnalytics` |
+| timeInterval (optional) | `number`                                           | `30000`             | The interval, in milliseconds, to call `send` when the `timeupdate` event is emitted                     |
+| onQueue (optional)      | (metrics: [ReportMetrics](#reportmetrics)) => void | `-`                 | Called when metrics are queued to be sent                                                                |
+| onComplete (optional)   | (metrics: [ReportMetrics](#reportmetrics)) => void                 | `-`                 | Called when metrics are successfully sent                                                                |
+| onError (optional)      | (metrics: [ReportMetrics](#reportmetrics)) => void                 | `-`                 | Called when metrics fail to be sent                                                                      |
+| onRequeue (optional)    | (metrics: [ReportMetrics](#reportmetrics)) => void                | `-`                 | Called when metrics are requeued to be sent                                                              |
+| onFail (optional)       | (metrics: [ReportMetrics](#reportmetrics)) => void                | `-`                 | Called when metrics fail to be sent after `maxAttempts`                                                  |
 
-#### ReportMetrics
+#### Types
+`ReportMetrics`
 
-| Prop              | Type                             | Description                                                                                  |
-|-------------------|----------------------------------|----------------------------------------------------------------------------------------------|
-| timestamp         | `string`                         | The timestamp when the metric was created                                                    |
-| hourOfDay         | `number`                         | The hour of day when the metric was created                                                  |
-| dayOfWeek         | `number`                         | The day of the week when the metric was created                                              |
-| action            | `ReportAction`                   | The action that generated the metric                                                         |
-| position          | `number`                         | The current time (position), in seconds, of the video player                                 |
-| duration          | `number`                         | The total duration, in seconds, of the video being played                                    |
-| durationBuffering | `number`                         | The time spent buffering, in seconds, whenever the video finishes buffering                  |
-| browser           | `BrowserState &#124; undefined`  | Details about the browser being used to watch the video                                      |
-| headers           | `ReportHeaders &#124; undefined` | The view and viewer ID of the video session                                                  |
-| error             | `ReportError &#124; undefined`   | Error details. Particularly useful when `onError`, `onRequeue`, or `onFail` are called       |
-| __attempts        | `number &#124; undefined`         | The total number of attempts to send metrics. Particularly useful when `onRequeue` is called |
+| Prop                  | Type                            | Description                                                                                  |
+|-----------------------|---------------------------------|----------------------------------------------------------------------------------------------|
+| timestamp             | `string`                        | The timestamp when the metric was created                                                    |
+| hourOfDay             | `number`                        | The hour of day when the metric was created                                                  |
+| dayOfWeek             | `number`                        | The day of the week when the metric was created                                              |
+| action                | [ReportAction](#reportaction)   | The action that generated the metric                                                         |
+| position              | `number`                        | The current time (position), in seconds, of the video player                                 |
+| duration              | `number`                        | The total duration, in seconds, of the video being played                                    |
+| durationBuffering     | `number`                        | The time spent buffering, in seconds, whenever the video finishes buffering                  |
+| browser (optional)    | [BrowserState](#browserstate)   | Details about the browser being used to watch the video                                      |
+| headers (optional)    | [ReportHeaders](#reportheaders) | The view and viewer ID of the video session                                                  |
+| error (optional)      | [ReportError](#reporterror)     | Error details. Particularly useful when `onError`, `onRequeue`, or `onFail` are called       |
+| __attempts (optional) | `number`                        | The total number of attempts to send metrics. Particularly useful when `onRequeue` is called |
 
-#### ReportAction
+##### `ReportAction`
+
 | Value      | Description                                                                                 |
 |------------|---------------------------------------------------------------------------------------------|
 | `complete` | The video completed playing                                                                 |
@@ -195,28 +208,30 @@ return (
 | `setup`    | The initial report action                                                                   |
 | `error`     | A playback error occurred                                                                   |
 
-#### BrowserState
-| Prop           | Type                      | Description                                                                 |
-|----------------|---------------------------|-----------------------------------------------------------------------------|
-| host           | `string`                  |                                                                             |
-| os             | `string`                  |                                                                             |
-| browserName    | `string &#124; undefined` |                                                                             |
-| browserVersion | `string &#124; undefined` |                                                                             |
-| playerVersion  | `string &#124; undefined`  |                                                                             |
+##### `BrowserState`
 
-#### ReportHeaders
+| Prop                      | Type     | Description                                                 |
+|---------------------------|----------|-------------------------------------------------------------|
+| host                      | `string` | The host domain that the video is being watched on.         |
+| os                        | `string` | The operating system that the video is being watched on.    |
+| browserName (optional)    | `string` | The name of the browser that the video is being watched on. |
+| browserVersion (optional) | `string` | The browser version that the video is being watched on.     |
+
+##### `ReportHeaders`
+
 | Prop     | Type     | Description                                                                                                                  |
 |----------|----------|------------------------------------------------------------------------------------------------------------------------------|
 | viewId   | `string` | An identifier for the video's current view (session). Use this for tracking the number of views on your video.               |
 | viewerId | `string`  | An identifier for the unique viewer (user) watching the video. Use this to track the number of unique viewers of your video. |
 
-#### ReportError
-| Prop    | Type                      | Description                                                                 |
-|---------|---------------------------|-----------------------------------------------------------------------------|
-| message | `string`                  |                                                                             |
-| code    | `string`                  |                                                                             |
-| data    | `object`                  |                                                                             |
-| source  | `unknown &#124; undefined` |                                                                             |
+##### `ReportError`
+
+| Prop              | Type                      | Description                                                           |
+|-------------------|---------------------------|-----------------------------------------------------------------------|
+| message           | `string`                  | A message describing the error that occurred.                         |
+| code              | `string`                  | A code associated to the error that occurred.                         |
+| data              | `object`                  | A object containing additional details about the error that occurred. |
+| source (optional) | `unknown &#124; undefined` | A potential reference to the error's source.                          |
 
 ## Authors
 

@@ -7,7 +7,8 @@ export const VimePlayerConfig: PlayerConfig<HTMLVmPlayerElement> = {
     const adapter = await player.getAdapter()
     const internalPlayer = await adapter?.getInternalPlayer()
     if (internalPlayer) {
-      return internalPlayer._media
+      return internalPlayer._media as HTMLVideoElement
     }
+    return null
   },
 }

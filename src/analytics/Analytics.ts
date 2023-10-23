@@ -19,7 +19,6 @@ type BrowserState = {
   os: string
   browserName?: string
   browserVersion?: string
-  playerVersion: string
 }
 
 export type ReportMetrics = {
@@ -107,7 +106,7 @@ class Analytics {
   constructor(options?: AnalyticOptions) {
     this._options = options || {}
     this.maxAttempts = this._options.maxAttempts || 5
-    this.timeReportInterval = this._options.interval !== undefined ? this._options.interval : 10000
+    this.timeReportInterval = this._options.timeInterval !== undefined ? this._options.timeInterval : 10000
   }
 
   private getState = () => {
@@ -116,7 +115,6 @@ class Analytics {
       os: guessOS(),
       browser_name: platform.name,
       browser_version: platform.version,
-      playerVersion: 'viewcastle v1',
     }
 
     return {

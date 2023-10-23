@@ -1,5 +1,5 @@
-import { RefObject, ForwardedRef, useContext, useEffect, useMemo } from 'react'
-import Analytics, { AnalyticsContext, Players } from '../analytics'
+import { RefObject, useContext, useEffect, useMemo } from 'react'
+import Analytics, { AnalyticsContext, PlayerConfig } from '../analytics'
 import { ReportMetrics } from '../analytics'
 
 export type AnalyticOptions = {
@@ -10,36 +10,39 @@ export type AnalyticOptions = {
   onComplete?: (metrics: ReportMetrics) => Promise<void> | void
   onError?: (metrics: ReportMetrics) => Promise<void> | void
   onFail?: (metrics: ReportMetrics) => Promise<void> | void
-  player?: keyof Players
-  interval?: number
+  playerConfig?: PlayerConfig
+  timeInterval?: number
 }
 
 export function useAnalytics<PlayerElement>(player: RefObject<PlayerElement>, options?: AnalyticOptions) {
-  const analytics = useMemo(() => new Analytics(options), [])
-  const { getPlayer, viewerIdKey } = useContext(AnalyticsContext)
+  const { getVideoElement, setDefaultPlayerConfig, defaultPlayerConfig, defaultTimeInterval, viewerIdKey } =
+    useContext(AnalyticsContext)
 
-  const p = getPlayer(options?.player)
+  const analytics = useMemo(
+    () =>
+      new Analytics({
+        ...options,
+        timeInterval: options?.timeInterval || defaultTimeInterval,
+      }),
+    [],
+  )
 
   useEffect(() => {
-    if (player.current && p) {
-      const v = p.getVideoElement(player.current)
-      if ('then' in v) {
-        v.then((video) => {
+    if (player.current) {
+      getVideoElement(player.current, options?.playerConfig).then((video) => {
+        if (video) {
           analytics.attach({
             video,
             viewerIdKey,
           })
-        })
-      } else {
-        analytics.attach({
-          video: v,
-          viewerIdKey,
-        })
-      }
+        }
+      })
     }
   }, [player?.current])
 
   return {
     analytics,
+    setDefaultPlayerConfig,
+    defaultPlayerConfig,
   }
 }
