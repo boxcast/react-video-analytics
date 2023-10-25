@@ -1,6 +1,7 @@
-![GitHub](https://img.shields.io/github/license/oos-studio/react-video-analytics)
 ![GitHub package.json version (subfolder of monorepo)](https://img.shields.io/github/package-json/v/oos-studio/react-video-analytics)
+[![npm downloads](https://img.shields.io/npm/dm/react-video-analytics.svg?style=flat-square)](https://www.npmjs.com/package/react-video-analytics)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+![GitHub](https://img.shields.io/github/license/oos-studio/react-video-analytics)
 
 
 # React Video Analytics
