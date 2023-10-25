@@ -180,20 +180,20 @@ The `useAnalytics` hook requires a reference to your video player component. It 
 | onFail (optional)       | (metrics: [ReportMetrics](#reportmetrics)) => void                | `-`                 | Called when metrics fail to be sent after `maxAttempts`                                                  |
 
 #### Types
-`ReportMetrics`
+##### `ReportMetrics`
 
-| Prop                  | Type                            | Description                                                                                  |
-|-----------------------|---------------------------------|----------------------------------------------------------------------------------------------|
-| timestamp             | `string`                        | The timestamp when the metric was created                                                    |
-| hourOfDay             | `number`                        | The hour of day when the metric was created                                                  |
-| dayOfWeek             | `number`                        | The day of the week when the metric was created                                              |
-| action                | [ReportAction](#reportaction)   | The action that generated the metric                                                         |
-| position              | `number`                        | The current time (position), in seconds, of the video player                                 |
-| duration              | `number`                        | The total duration, in seconds, of the video being played                                    |
-| durationBuffering     | `number`                        | The time spent buffering, in seconds, whenever the video finishes buffering                  |
-| browser (optional)    | [BrowserState](#browserstate)   | Details about the browser being used to watch the video                                      |
-| headers (optional)    | [ReportHeaders](#reportheaders) | The view and viewer ID of the video session                                                  |
-| error (optional)      | [ReportError](#reporterror)     | Error details. Particularly useful when `onError`, `onRequeue`, or `onFail` are called       |
+| Prop    | Type                            | Description                                                                                  |
+|---------|---------------------------------|----------------------------------------------------------------------------------------------|
+| timestamp | `string`                        | The timestamp when the metric was created                                                    |
+| hourOfDay | `number`                        | The hour of day when the metric was created                                                  |
+| dayOfWeek | `number`                        | The day of the week when the metric was created                                              |
+| action  | [ReportAction](#reportaction)   | The action that generated the metric                                                         |
+| position | `number`                        | The current time (position), in seconds, of the video player                                 |
+| duration | `number`                        | The total duration, in seconds, of the video being played                                    |
+| durationBuffering | `number`                        | The time spent buffering, in seconds, whenever the video finishes buffering                  |
+| browser | [BrowserState](#browserstate)   | Details about the browser being used to watch the video                                      |
+| headers | [ReportHeaders](#reportheaders) | The view and viewer ID of the video session                                                  |
+| error (optional) | [ReportError](#reporterror)     | Error details. Particularly useful when `onError`, `onRequeue`, or `onFail` are called       |
 | __attempts (optional) | `number`                        | The total number of attempts to send metrics. Particularly useful when `onRequeue` is called |
 
 ##### `ReportAction`
@@ -212,12 +212,12 @@ The `useAnalytics` hook requires a reference to your video player component. It 
 
 ##### `BrowserState`
 
-| Prop                      | Type     | Description                                                 |
-|---------------------------|----------|-------------------------------------------------------------|
-| host                      | `string` | The host domain that the video is being watched on.         |
-| os                        | `string` | The operating system that the video is being watched on.    |
-| browserName (optional)    | `string` | The name of the browser that the video is being watched on. |
-| browserVersion (optional) | `string` | The browser version that the video is being watched on.     |
+| Prop               | Type     | Description                                                 |
+|--------------------|----------|-------------------------------------------------------------|
+| host (optional)    | `string` | The host domain that the video is being watched on.         |
+| os (optional)      | `string` | The operating system that the video is being watched on.    |
+| name (optional)    | `string` | The name of the browser that the video is being watched on. |
+| version (optional) | `string` | The browser version that the video is being watched on.     |
 
 ##### `ReportHeaders`
 

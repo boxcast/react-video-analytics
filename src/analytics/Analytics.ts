@@ -15,10 +15,10 @@ type ReportHeaders = {
 }
 
 type BrowserState = {
-  host: string
-  os: string
-  browserName?: string
-  browserVersion?: string
+  host?: string
+  os?: string
+  name?: string
+  version?: string
 }
 
 export type ReportMetrics = {
@@ -30,8 +30,8 @@ export type ReportMetrics = {
   position: number
   duration: number
   durationBuffering: number
-  browser?: BrowserState
-  headers?: ReportHeaders
+  browser: BrowserState
+  headers: ReportHeaders
   error?: {
     message: string
     code: string
@@ -70,12 +70,12 @@ function guessHost() {
   try {
     return window.location.host
   } catch (e) {
-    return ''
+    return undefined
   }
 }
 
 function guessOS() {
-  return (platform.os || '').toString()
+  return platform.os ? platform.os.toString() : undefined
 }
 
 class Analytics {
@@ -109,21 +109,12 @@ class Analytics {
     this.timeReportInterval = this._options.timeInterval !== undefined ? this._options.timeInterval : 10000
   }
 
-  private getState = () => {
-    const browserState = {
-      host: guessHost(),
-      os: guessOS(),
-      browser_name: platform.name,
-      browser_version: platform.version,
-    }
-
-    return {
-      ...browserState,
-      ...OVERRIDE_STATE,
-    }
+  private browserState: BrowserState = {
+    host: guessHost(),
+    os: guessOS(),
+    name: platform.name,
+    version: platform.version,
   }
-
-  private browserState = this.getState()
 
   attach(params: AttachParams) {
     const { video, viewerIdKey } = params
