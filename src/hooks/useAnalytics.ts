@@ -17,9 +17,14 @@ export type AnalyticOptions = {
   onFail?: (metrics: ReportMetrics) => Promise<void> | void
   playerConfig?: PlayerConfig
   timeInterval?: number
+  videoId?: string | null
 }
 
-export function useAnalytics<PlayerElement>(player: RefObject<PlayerElement>, options?: AnalyticOptions) {
+export function useAnalytics<PlayerElement>(
+  player: RefObject<PlayerElement>,
+  options?: AnalyticOptions,
+  deps: unknown[] = [],
+) {
   const { getVideoElement, setDefaultPlayerConfig, defaultPlayerConfig, defaultTimeInterval, viewerIdKey } =
     useContext(AnalyticsContext)
 
@@ -32,6 +37,13 @@ export function useAnalytics<PlayerElement>(player: RefObject<PlayerElement>, op
     [],
   )
 
+  useEffect(
+    () => {
+      analytics.updateOptions(options)
+    },
+    options ? [...Object.keys(options).map((k) => options[k as keyof AnalyticOptions]), ...deps] : deps,
+  )
+
   useEffect(() => {
     if (player.current) {
       getVideoElement(player.current, options?.playerConfig).then((video) => {
@@ -40,10 +52,19 @@ export function useAnalytics<PlayerElement>(player: RefObject<PlayerElement>, op
             video,
             viewerIdKey,
           })
+          return () => {
+            analytics.detach()
+          }
         }
       })
     }
-  }, [player?.current])
+  }, [player?.current, viewerIdKey, analytics, options?.videoId])
+
+  useEffect(() => {
+    return () => {
+      analytics.detach()
+    }
+  }, [])
 
   return {
     analytics,

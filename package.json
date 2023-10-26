@@ -1,6 +1,6 @@
 {
   "name": "react-video-analytics",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Easily generate and post video player metrics",
   "repository": "https://github.com/oos-studio/react-video-analytics",
   "main": "./dist/index.js",
@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "test": "test",
+    "test": "jest",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx,json}'",
     "lint:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx,json}'",
     "format": "prettier-eslint --write \"$(pwd)/**/*.{js,jsx,ts,tsx}\"",

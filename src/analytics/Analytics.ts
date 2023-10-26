@@ -21,6 +21,13 @@ type BrowserState = {
   version?: string
 }
 
+export type ReportError = {
+  message: string
+  code: string
+  data: object
+  source?: unknown
+}
+
 export type ReportMetrics = {
   //accountId?: string
   timestamp: string
@@ -30,18 +37,14 @@ export type ReportMetrics = {
   position: number
   duration: number
   durationBuffering: number
+  videoHeight: number
   browser: BrowserState
   headers: ReportHeaders
-  error?: {
-    message: string
-    code: string
-    data: object
-    source?: unknown
-  }
+  error?: ReportError
   __attempts?: number
 }
 
-export type ReportParams = ReportMetrics | { offset?: number } | BrowserState
+export type ReportParams = ReportMetrics | BrowserState
 
 type AttachParams = {
   video: HTMLVideoElement
@@ -61,8 +64,6 @@ type AnalyticEvents = {
   stalled?: () => void
   waiting?: () => void
 }
-
-const OVERRIDE_STATE = {}
 
 const storage = getStorage()
 
@@ -84,7 +85,7 @@ class Analytics {
   private _waitForBufferingCheck: NodeJS.Timeout | null = null
 
   private listeners: AnalyticEvents = {}
-  private viewerIdKey: string = 'react-video-analytics-viewer-id'
+  private viewerIdKey = 'react-video-analytics-viewer-id'
   private maxAttempts: number
   private timeReportInterval: number
   private player?: HTMLVideoElement
@@ -103,8 +104,14 @@ class Analytics {
   private isSetup = false
   private stoppedHACK = false
 
-  constructor(options?: AnalyticOptions) {
-    this._options = options || {}
+  constructor(options: AnalyticOptions = {}) {
+    this._options = { ...options }
+    this.maxAttempts = this._options.maxAttempts || 5
+    this.timeReportInterval = this._options.timeInterval !== undefined ? this._options.timeInterval : 10000
+  }
+
+  updateOptions(options: AnalyticOptions = {}) {
+    this._options = { ...options }
     this.maxAttempts = this._options.maxAttempts || 5
     this.timeReportInterval = this._options.timeInterval !== undefined ? this._options.timeInterval : 10000
   }
@@ -187,7 +194,7 @@ class Analytics {
       },
       seeking: async () => {
         this._handleNormalOperation()
-        await this._report('seek', { offset: this.player?.currentTime })
+        await this._report('seek')
       },
       seeked: () => {
         this._handleNormalOperation()
@@ -327,6 +334,7 @@ class Analytics {
       position: this._getCurrentTime(),
       duration: Math.round(this.durationPlaying / 1000),
       durationBuffering: Math.round((this.totalDurationBuffering + this.activeBufferingDuration) / 1000),
+      videoHeight: this._getCurrentLevelHeight(),
     }
 
     //console.table(metrics)
@@ -342,15 +350,17 @@ class Analytics {
     for (const metrics of this._queue) {
       try {
         await this._options.send?.(metrics)
-      } catch (error) {
+      } catch (e) {
+        const error = normalizeError(e as ErrorObject)
+        metrics.error = error
         await this._options.onError?.(metrics)
         metrics.__attempts = (metrics.__attempts || 0) + 1
         if (metrics.__attempts <= this.maxAttempts) {
-          console.warn('Unable to post metrics; will retry', normalizeError(error as ErrorObject), metrics)
+          console.warn('Unable to post metrics; will retry', error, metrics)
           requeue.push(metrics)
           await this._options.onRequeue?.(metrics)
         } else {
-          console.warn('Unable to post metrics; will not retry', normalizeError(error as ErrorObject), metrics)
+          console.warn('Unable to post metrics; will not retry', error, metrics)
           await this._options.onFail?.(metrics)
         }
       }

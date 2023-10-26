@@ -167,17 +167,18 @@ return (
 The `useAnalytics` hook requires a reference to your video player component. It also accepts an optional `options` object that allows you to customize how metrics are handled and sent to your analytics service.
 
 #### Options
-| Prop                    | Type                                               | Default             | Description                                                                                              |
-|-------------------------|----------------------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------|
-| send (optional)         | (metrics: [ReportMetrics](#reportmetrics)) => void               | `-`                 | Describes how to post metrics to your analytics service                                                  |
-| maxAttempts (optional)  | `number`                                           | `5`                 | Maximum number of times to attempt to send metrics before calling `onFail`                               |
-| playerConfig (optional) | `PlayerConfig`                                     | `VideoPlayerConfig` | The player configuration to use corresponding to the player component reference passed to `useAnalytics` |
-| timeInterval (optional) | `number`                                           | `30000`             | The interval, in milliseconds, to call `send` when the `timeupdate` event is emitted                     |
-| onQueue (optional)      | (metrics: [ReportMetrics](#reportmetrics)) => void | `-`                 | Called when metrics are queued to be sent                                                                |
-| onComplete (optional)   | (metrics: [ReportMetrics](#reportmetrics)) => void                 | `-`                 | Called when metrics are successfully sent                                                                |
-| onError (optional)      | (metrics: [ReportMetrics](#reportmetrics)) => void                 | `-`                 | Called when metrics fail to be sent                                                                      |
-| onRequeue (optional)    | (metrics: [ReportMetrics](#reportmetrics)) => void                | `-`                 | Called when metrics are requeued to be sent                                                              |
-| onFail (optional)       | (metrics: [ReportMetrics](#reportmetrics)) => void                | `-`                 | Called when metrics fail to be sent after `maxAttempts`                                                  |
+| Prop                    | Type                                               | Default             | Description                                                                                                             |
+|-------------------------|----------------------------------------------------|---------------------|-------------------------------------------------------------------------------------------------------------------------|
+| send (optional)         | (metrics: [ReportMetrics](#reportmetrics)) => void | `-`                 | Describes how to post metrics to your analytics service                                                                 |
+| videoId (optional)      | `string`                                            | `-`                  | Optionally supply a unique identifier for the video source being played. When this changes, a new `viewId` is generated |
+| maxAttempts (optional)  | `number`                                           | `5`                 | Maximum number of times to attempt to send metrics before calling `onFail`                                              |
+| playerConfig (optional) | `PlayerConfig`                                     | `VideoPlayerConfig` | The player configuration to use corresponding to the player component reference passed to `useAnalytics`                |
+| timeInterval (optional) | `number`                                           | `30000`             | The interval, in milliseconds, to call `send` when the `timeupdate` event is emitted                                    |
+| onQueue (optional)      | (metrics: [ReportMetrics](#reportmetrics)) => void | `-`                 | Called when metrics are queued to be sent                                                                               |
+| onComplete (optional)   | (metrics: [ReportMetrics](#reportmetrics)) => void | `-`                 | Called when metrics are successfully sent                                                                               |
+| onError (optional)      | (metrics: [ReportMetrics](#reportmetrics)) => void | `-`                 | Called when metrics fail to be sent                                                                                     |
+| onRequeue (optional)    | (metrics: [ReportMetrics](#reportmetrics)) => void | `-`                 | Called when metrics are requeued to be sent                                                                             |
+| onFail (optional)       | (metrics: [ReportMetrics](#reportmetrics)) => void | `-`                 | Called when metrics fail to be sent after `maxAttempts`                                                                 |
 
 #### Types
 ##### `ReportMetrics`
