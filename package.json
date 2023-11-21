@@ -1,6 +1,6 @@
 {
   "name": "react-video-analytics",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Easily generate and post video player metrics",
   "repository": "https://github.com/oos-studio/react-video-analytics",
   "main": "./dist/index.js",
