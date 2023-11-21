@@ -39,7 +39,10 @@ export function useAnalytics<PlayerElement>(
 
   useEffect(
     () => {
-      analytics.updateOptions(options)
+      analytics.updateOptions({
+        ...options,
+        timeInterval: options?.timeInterval || defaultTimeInterval,
+      })
     },
     options ? [...Object.keys(options).map((k) => options[k as keyof AnalyticOptions]), ...deps] : deps,
   )
