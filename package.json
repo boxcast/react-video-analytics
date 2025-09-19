@@ -1,8 +1,11 @@
 {
-  "name": "react-video-analytics",
+  "name": "@boxcast/react-video-analytics",
   "version": "0.1.3",
   "description": "Easily generate and post video player metrics",
-  "repository": "https://github.com/oos-studio/react-video-analytics",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boxcast/react-video-analytics.git"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -23,11 +26,7 @@
     "metrics",
     "react"
   ],
-  "author": {
-    "name": "oos",
-    "email": "contact@oos-studio.com",
-    "url": "https://oos-studio.com"
-  },
+  "author": "BoxCast <support@boxcast.com> (https://www.boxcast.com)",
   "license": "MIT",
   "dependencies": {
     "@vime/core": "^5.4.1",
@@ -57,5 +56,12 @@
     "ts-node": "^10.9.1",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
-  }
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "bugs": {
+    "url": "https://github.com/boxcast/react-video-analytics/issues"
+  },
+  "homepage": "https://github.com/boxcast/react-video-analytics#readme"
 }
